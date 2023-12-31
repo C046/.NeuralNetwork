@@ -5,7 +5,11 @@ from decimal import Decimal
 from mpmath import mp
 mp.dps = 1000
 
-
+"""
+What to do at work:
+    1.) Figure out why e
+        simply is always == 1
+"""
 class Neuron:
     """
     Bias:
@@ -17,7 +21,7 @@ class Neuron:
         a "bias" in our network—it gives
         our predictions a starting point.
     """
-    def __init__(self, inputs=[], weights=[], bias=np.random.randint(0,9), e=False):
+    def __init__(self, layer_structure=[5,10,1], inputs=[], weights=[], bias=np.random.randint(0,9), e=False):
         if e == False:
             self.e = 1
             e=self.e
@@ -25,6 +29,7 @@ class Neuron:
             self.e=e
 
         self.e = e
+        self.layer_structure = layer_structure
         self.inputs = inputs
         self.bias = bias
         self.weights = weights
@@ -34,6 +39,26 @@ class Neuron:
     def _e_(self):
         self.e = 1/math.factorial(self.e)
         return self.e
+
+    def forward_propagate(self, activationFunction="sigmoid"):
+        """
+        Perform forward propagation.
+
+        input_data: Input data to the network.
+        """
+        if activationFunction == "sigmoid":
+            activationFunction = self.sigmoid
+        else:
+            pass
+
+        activations = [self.inputs]
+
+        for w, b in zip(self.weights, self.bias):
+            z = np.dot(activations[-1], w) + b
+            a = activationFunction(z)  # You can change this to any other activation function if needed.
+            activations.append(a)
+        return activations[-1]
+
 
     def prediction(self, x_i):
         # # Start with the input
@@ -68,9 +93,9 @@ class Neuron:
             x = last_valid_value
 
         for i in range(0,len(self.inputs)):
-            if net_type == False:
+            if net_type == True:
 
-                x = self.bias+(x+(self.weights[i]*self.sigmoid(self.inputs[i])))
+                x = self.bias[i]+(x+(self.weights[i]*self.sigmoid(self.inputs[i])))
             else:
 
                 #x = Decimal(str(x))
@@ -81,9 +106,9 @@ class Neuron:
                 x = x+(self.weights[i])*self.sigmoid(self.inputs[i])
 
         if net_type == False:
-            return x
-        else:
             return x+self.bias
+        else:
+            return x
 
 
     """
@@ -92,6 +117,7 @@ class Neuron:
     #####################################################
     """
     def sigmoid(self, x):
+        print(self.e)
         _x = 1+(self.e**-x)
         def __activation__():
             return 1/_x
@@ -195,24 +221,24 @@ class Neuron:
         pass
 
 
-Neuron = Neuron(inputs=[np.random.randint(0,9) for i in range(0,10)], weights=[np.random.randint(0,9) for i in range(0,10)])
+Neuron = Neuron(inputs=[np.random.randint(0,9) for i in range(0,10)], weights=[np.random.randint(0,9) for i in range(0,10)],bias=[np.random.randint(0,9) for i in range(0,10)])
 NWSum = Neuron.weighted_sum(net_type="ff")
+forward = Neuron.forward_propagate()
+# sigmoid = Neuron.sigmoid(NWSum)
+# relu = Neuron.reLU(NWSum)
+# leakyrelu = Neuron.leakyReLU(NWSum)
+# tanh = Neuron.tanH(NWSum)
+# softmax = Neuron.softmax(NWSum)
 
-sigmoid = Neuron.sigmoid(NWSum)
-relu = Neuron.reLU(NWSum)
-leakyrelu = Neuron.leakyReLU(NWSum)
-tanh = Neuron.tanH(NWSum)
-softmax = Neuron.softmax(NWSum)
-
-mse = Neuron.BinaryCrossEntropyLoss(8)
-mae = Neuron.MeanSquaredError(8)
-bcs = Neuron.MeanAbsoluteError(8)
-print(f"|\nsigmoid: {sigmoid} \n    type: {type(sigmoid)} \nreLU: {relu}  \n    type: {type(relu)} \nleakyreLU: {leakyrelu} \n    type: {type(leakyrelu)} \ntanH: {tanh} \n    type: {type(tanh)} \nsoftmax: {softmax} \n    type: {type(softmax)} |")
-print(f"""
-   \n bcs: {bcs}
-   \n mae: {mae}
-   \n mse: {mse}
-""")
+# mse = Neuron.BinaryCrossEntropyLoss(8)
+# mae = Neuron.MeanSquaredError(8)
+# bcs = Neuron.MeanAbsoluteError(8)
+# print(f"|\nsigmoid: {sigmoid} \n    type: {type(sigmoid)} \nreLU: {relu}  \n    type: {type(relu)} \nleakyreLU: {leakyrelu} \n    type: {type(leakyrelu)} \ntanH: {tanh} \n    type: {type(tanh)} \nsoftmax: {softmax} \n    type: {type(softmax)} |")
+# print(f"""
+#    \n bcs: {bcs}
+#    \n mae: {mae}
+#    \n mse: {mse}
+# """)
 
 #print(Neuron.sigmoid(Neuron.weighted_sum(net_type="rnn")))
 #e = Neuron._e_()
