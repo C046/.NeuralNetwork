@@ -1,18 +1,18 @@
 import math
 import numpy as np
-""" created by colton hadaway 12/31/23 3:32AM"""
+
 class Neuron:
     """
     Bias:
-        Imagine you're trying to predict 
-        the price of a house. Even if all 
+        Imagine you're trying to predict
+        the price of a house. Even if all
         other factors are zero (like size,
-        location, etc.), there's still a 
+        location, etc.), there's still a
         base price. This base price is like
         a "bias" in our network—it gives
         our predictions a starting point.
     """
-    def __init__(self, inputs=[], weights=[], bias=1, e=False):
+    def __init__(self, inputs=[], weights=[], bias=np.random.randint(0,9), e=False):
         if e == False:
             self.e = 1
             e=self.e
@@ -34,7 +34,7 @@ class Neuron:
             net_type = True
         else:
             net_type = False
-            
+
         x = math.factorial(np.sum(self.inputs))
 
         for i in range(0,len(self.inputs)):
@@ -47,15 +47,52 @@ class Neuron:
             return x
         else:
             return x+self.bias
-            
+
+
+    """
+    #####################################################
+        Activation functions are defined below
+    #####################################################
+    """
     def sigmoid(self, x):
-        _x = (self.e**-x)+1
+        _x = 1+(self.e**-x)
         def __activation__():
             return 1/_x
-            
+
         return __activation__()
 
+    def reLU(self, x):
+        return max(0, x)
 
-Neuron = Neuron(inputs=[1,2,3,4], weights=[4,3,2,1])
-print(Neuron.sigmoid(Neuron.weighted_sum(net_type="ff")))
-#e = Neuron._e_()
+    def leakyReLU(self, x):
+        if x > 0:
+            return x
+        else:
+            return 0.01 * x
+
+
+
+    def tanH(self, x):
+        return (((self.e**x)-(self.e)**-x) / ((self.e**x)+(self.e)**-x))
+
+
+    def softmax(self, x):
+        """
+        Parameters
+        ----------
+        x : TYPE
+            weighted sum of inputs for each class
+
+        Returns
+        -------
+        softmax_values : TYPE
+            DESCRIPTION.
+
+        """
+        exp_values = [self.e**i for i in [x]]  # Compute the exponentials of each value in x
+        sum_exp_values = sum(exp_values)     # Sum of all exponentials
+
+        softmax_values = [i / sum_exp_values for i in exp_values]  # Normalize to get softmax values
+
+        return softmax_values
+        
