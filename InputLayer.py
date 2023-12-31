@@ -24,10 +24,12 @@ class InputLayer:
 
 
 
-    def forward_propagate(self, inputs):
+    def forward_propagate(self, inputs, activation="sigmoid"):
             outputs = []
             for neuron in self.neurons:
-                outputs.append(neuron.forward_propagate())
+                outputs.append(neuron.forward_propagate(activationFunction=activation))
+            for i in outputs:
+                print(i)
             return outputs
 
 
