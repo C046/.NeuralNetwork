@@ -134,16 +134,16 @@ class Neuron:
         Loss functions are defined below
     ############################################################
     """
-    def MeanSquaredError(self, totalSamples):
-        n = 1/totalSamples
+    def MeanSquaredError(self, NumberOfSamples):
+        n = 1/NumberOfSamples
         residualSquared = 0.0
-        for i in range(0, totalSamples):
+        for i in range(0, NumberOfSamples):
             y_i = self.inputs[i]
             yHat_i = self.prediction(y_i)
 
             residualSquared+=(y_i-yHat_i)**2
 
-        return n*(residualSquared/totalSamples)
+        return n*(residualSquared/NumberOfSamples)
 
     def MeanAbsoluteError(self, NumberOfSamples):
         n = 1/NumberOfSamples  # Assign totalSamples to n
@@ -195,7 +195,7 @@ class Neuron:
         pass
 
 
-Neuron = Neuron(inputs=[np.random.randint(0,1) for i in range(0,9)], weights=[np.random.randint(0,1) for i in range(0,9)])
+Neuron = Neuron(inputs=[np.random.randint(0,9) for i in range(0,10)], weights=[np.random.randint(0,9) for i in range(0,10)])
 NWSum = Neuron.weighted_sum(net_type="ff")
 
 sigmoid = Neuron.sigmoid(NWSum)
