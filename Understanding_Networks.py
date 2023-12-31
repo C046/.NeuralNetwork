@@ -62,13 +62,9 @@ class Neuron:
         for w, b in zip(self.weights, cycle(self.bias)):
            # i+=1
             # Debug print to see the values
-            print(f"Weight: {w}, Bias: {b}, Activation: {current_activation}")
-
             z = np.dot(current_activation, w) + b
-
             current_activation = activationFunction(z)
 
-            print(z,current_activation)
         return current_activation
 
 
