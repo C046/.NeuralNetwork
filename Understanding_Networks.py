@@ -36,19 +36,20 @@ class Neuron:
         return self.e
 
     def prediction(self, x_i):
-        # Start with the input
-        output = x_i
+        # # Start with the input
+        # output = x_i
 
-        # Pass through each hidden layer
-        for layer in self.hidden_layers:
-            weighted_sum = np.dot(output, layer.weights) + layer.bias
-            output = layer.activation_function(weighted_sum)
+        # # Pass through each hidden layer
+        # for layer in self.hidden_layers:
+        #     weighted_sum = np.dot(output, layer.weights) + layer.bias
+        #     output = layer.activation_function(weighted_sum)
 
-        # Pass through the output layer (assuming no activation or linear activation)
-        weighted_sum = np.dot(output, self.output_layer.weights) + self.output_layer.bias
-        y_hat_i = weighted_sum  # Or use a linear activation function here if needed
+        # # Pass through the output layer (assuming no activation or linear activation)
+        # weighted_sum = np.dot(output, self.output_layer.weights) + self.output_layer.bias
+        # y_hat_i = weighted_sum  # Or use a linear activation function here if needed
 
-        return y_hat_i
+        # return y_hat_i
+        return 1
 
     def weighted_sum(self, net_type=("ff","rnn") ):
         if net_type == "ff":
@@ -142,19 +143,19 @@ class Neuron:
 
             residualSquared+=(y_i-yHat_i)**2
 
-        return residualSquared/totalSamples
+        return n*(residualSquared/totalSamples)
 
-    def MeanAbsoluteError(self, totalSamples):
-        n = 1/totalSamples  # Assign totalSamples to n
+    def MeanAbsoluteError(self, NumberOfSamples):
+        n = 1/NumberOfSamples  # Assign totalSamples to n
         absoluteDifferences = 0.0
 
-        for i in range(totalSamples):
+        for i in range(NumberOfSamples):
             y_i = self.inputs[i]  # actual values
             yHat_i = self.prediction(y_i)  # Predicted value for the i-th sample
 
             absoluteDifferences+=abs(y_i - yHat_i)
 
-        return n*absoluteDifferences
+        return n*(absoluteDifferences/NumberOfSamples)
 
     def BinaryCrossEntropyLoss(self, NumberOfSamples):
         n = -(1/NumberOfSamples)
@@ -169,7 +170,7 @@ class Neuron:
 
             total_loss += loss
 
-        return n*(total_loss/n)
+        return n*(total_loss/NumberOfSamples)
 
 
     def CategoricalCrossEntropyLoss(self):
@@ -192,3 +193,26 @@ class Neuron:
 
     def ContrastiveLoss(self):
         pass
+
+
+Neuron = Neuron(inputs=[np.random.randint(0,1) for i in range(0,9)], weights=[np.random.randint(0,1) for i in range(0,9)])
+NWSum = Neuron.weighted_sum(net_type="ff")
+
+sigmoid = Neuron.sigmoid(NWSum)
+relu = Neuron.reLU(NWSum)
+leakyrelu = Neuron.leakyReLU(NWSum)
+tanh = Neuron.tanH(NWSum)
+softmax = Neuron.softmax(NWSum)
+
+mse = Neuron.BinaryCrossEntropyLoss(8)
+mae = Neuron.MeanSquaredError(8)
+bcs = Neuron.MeanAbsoluteError(8)
+print(f"|\nsigmoid: {sigmoid} \n    type: {type(sigmoid)} \nreLU: {relu}  \n    type: {type(relu)} \nleakyreLU: {leakyrelu} \n    type: {type(leakyrelu)} \ntanH: {tanh} \n    type: {type(tanh)} \nsoftmax: {softmax} \n    type: {type(softmax)} |")
+print(f"""
+   \n bcs: {bcs}
+   \n mae: {mae}
+   \n mse: {mse}
+""")
+
+#print(Neuron.sigmoid(Neuron.weighted_sum(net_type="rnn")))
+#e = Neuron._e_()
