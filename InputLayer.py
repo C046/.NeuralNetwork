@@ -9,14 +9,14 @@ from neuralNetwork import *
 
 class InputLayer:
     def __init__(self, num_neurons):
-        self.neurons = [Neuron(inputs=[],
+        self.neurons = [Neuron(inputs=[random.uniform(-1, 1) for _ in range(num_neurons)],
                                weights=[random.uniform(-1, 1) for _ in range(num_neurons)],
-                               bias=random.uniform(-1, 1))
+                               bias=[random.uniform(-1, 1)])
                         for _ in range(num_neurons)]
 
         for neurons in self.neurons:
             self.weights = neurons.weights
-            print(self.weights)
+            #print(self.weights)
             self.inputs = neurons.inputs
 
             self.bias = neurons.bias
