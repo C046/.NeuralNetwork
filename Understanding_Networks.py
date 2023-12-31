@@ -35,6 +35,21 @@ class Neuron:
         self.e = 1/math.factorial(self.e)
         return self.e
 
+    def prediction(self, x_i):
+        # Start with the input
+        output = x_i
+
+        # Pass through each hidden layer
+        for layer in self.hidden_layers:
+            weighted_sum = np.dot(output, layer.weights) + layer.bias
+            output = layer.activation_function(weighted_sum)
+
+        # Pass through the output layer (assuming no activation or linear activation)
+        weighted_sum = np.dot(output, self.output_layer.weights) + self.output_layer.bias
+        y_hat_i = weighted_sum  # Or use a linear activation function here if needed
+
+        return y_hat_i
+
     def weighted_sum(self, net_type=("ff","rnn") ):
         if net_type == "ff":
             net_type = True
@@ -147,7 +162,8 @@ class Neuron:
 
         for i in range(NumberOfSamples):
             y_i = self.inputs[i]
-            yHat_i = self.prediciton(y_i)
+            yHat_i = self.sigmoid(y_i)
+            print(f"y_i: {y_i} | yHat_i: {yHat_i} n: {n}")
 
             loss = ((y_i*np.log(yHat_i))+((1-y_i)*np.log(1-yHat_i)))
 
