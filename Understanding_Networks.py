@@ -1,8 +1,8 @@
 """ created by colton hadaway 12/31/23 3:32AM"""
-import math
+import random
 import numpy as np
-from decimal import Decimal
 from mpmath import mp
+from itertools import cycle
 mp.dps = 1000
 
 """
@@ -10,6 +10,7 @@ What to do at work:
     1.) Figure out why e
         simply is always == 1
 """
+
 class Neuron:
     """
     Bias:
@@ -23,12 +24,13 @@ class Neuron:
     """
     def __init__(self, layer_structure=[5,10,1], inputs=[], weights=[], bias=np.random.randint(0,9), e=False):
         if e == False:
-            self.e = 1
+
+            self.e = sum(layer_structure)
             e=self.e
         else:
-            self.e=e
+            self.e = self._e_()
 
-        self.e = e
+        self.e = self._e_()
         self.layer_structure = layer_structure
         self.inputs = inputs
         self.bias = bias
@@ -37,50 +39,60 @@ class Neuron:
 
 
     def _e_(self):
-        self.e = 1/math.factorial(self.e)
+        self.e = 1/mp.factorial(self.e)
         return self.e
 
     def forward_propagate(self, activationFunction="sigmoid"):
-        """
-        Perform forward propagation.
-
-        input_data: Input data to the network.
-        """
         if activationFunction == "sigmoid":
             activationFunction = self.sigmoid
         else:
             pass
 
-        activations = [self.inputs]
+        # Ensure weights and bias are in list format for iteration
+        if not isinstance(self.weights, list):
+            self.weights = [self.weights]
+        if not isinstance(self.bias, list):
+            self.bias = [self.bias]
 
-        for w, b in zip(self.weights, self.bias):
-            z = np.dot(activations[-1], w) + b
-            a = activationFunction(z)  # You can change this to any other activation function if needed.
-            activations.append(a)
-        return activations[-1]
+        # Check dimensions
+        #assert len(self.weights) == len(self.bias), "Mismatch in dimensions of weights and biases."
+
+        current_activation = self.inputs
+        #i = 0
+        for w, b in zip(self.weights, cycle(self.bias)):
+           # i+=1
+            # Debug print to see the values
+            print(f"Weight: {w}, Bias: {b}, Activation: {current_activation}")
+
+            z = np.dot(current_activation, w) + b
+
+            current_activation = activationFunction(z)
+
+            print(z,current_activation)
+        return current_activation
 
 
     def prediction(self, x_i):
-        # # Start with the input
-        # output = x_i
+        # Start with the input
+        output = x_i
 
-        # # Pass through each hidden layer
-        # for layer in self.hidden_layers:
-        #     weighted_sum = np.dot(output, layer.weights) + layer.bias
-        #     output = layer.activation_function(weighted_sum)
+        # Pass through each hidden layer
+        for layer in self.hidden_layers:
+            weighted_sum = np.dot(output, layer.weights) + layer.bias
+            output = layer.activation_function(weighted_sum)
 
-        # # Pass through the output layer (assuming no activation or linear activation)
-        # weighted_sum = np.dot(output, self.output_layer.weights) + self.output_layer.bias
-        # y_hat_i = weighted_sum  # Or use a linear activation function here if needed
+        # Pass through the output layer (assuming no activation or linear activation)
+        weighted_sum = np.dot(output, self.output_layer.weights) + self.output_layer.bias
+        y_hat_i = weighted_sum  # Or use a linear activation function here if needed
 
-        # return y_hat_i
-        return 1
+        return y_hat_i
+        # return 1
 
     def weighted_sum(self, net_type=("ff","rnn") ):
         if net_type == "ff":
-            net_type = True
-        else:
             net_type = False
+        else:
+            net_type = True
 
         #x = math.factorial(np.sum(self.inputs))
         # Storing the last known valid value
@@ -98,15 +110,17 @@ class Neuron:
                 x = self.bias[i]+(x+(self.weights[i]*self.sigmoid(self.inputs[i])))
             else:
 
+
+
                 #x = Decimal(str(x))
 
 
                 # x = x/299792458
                 # print(x)
-                x = x+(self.weights[i])*self.sigmoid(self.inputs[i])
-
+                    x = x+(self.weights[i])*self.sigmoid(self.inputs[i])
+                    net_type= False
         if net_type == False:
-            return x+self.bias
+            return x+random.choice(self.bias)
         else:
             return x
 
@@ -117,7 +131,6 @@ class Neuron:
     #####################################################
     """
     def sigmoid(self, x):
-        print(self.e)
         _x = 1+(self.e**-x)
         def __activation__():
             return 1/_x
@@ -190,9 +203,9 @@ class Neuron:
         for i in range(NumberOfSamples):
             y_i = self.inputs[i]
             yHat_i = self.sigmoid(y_i)
-            print(f"y_i: {y_i} | yHat_i: {yHat_i} n: {n}")
+            # print(f"y_i: {y_i} | yHat_i: {yHat_i} n: {n}")
 
-            loss = ((y_i*np.log(yHat_i))+((1-y_i)*np.log(1-yHat_i)))
+            loss = ((y_i*mp.log(yHat_i))+((1-y_i)*mp.log(1-yHat_i)))
 
             total_loss += loss
 
@@ -220,10 +233,11 @@ class Neuron:
     def ContrastiveLoss(self):
         pass
 
-
-Neuron = Neuron(inputs=[np.random.randint(0,9) for i in range(0,10)], weights=[np.random.randint(0,9) for i in range(0,10)],bias=[np.random.randint(0,9) for i in range(0,10)])
-NWSum = Neuron.weighted_sum(net_type="ff")
-forward = Neuron.forward_propagate()
+if __name__ == "__main__":
+    pass
+# Neuron = Neuron(inputs=[np.random.randint(0,9) for i in range(0,10)], weights=[np.random.randint(0,9) for i in range(0,10)],bias=[np.random.randint(0,9) for i in range(0,10)])
+# NWSum = Neuron.weighted_sum(net_type="ff")
+# forward = Neuron.forward_propagate()
 # sigmoid = Neuron.sigmoid(NWSum)
 # relu = Neuron.reLU(NWSum)
 # leakyrelu = Neuron.leakyReLU(NWSum)
@@ -235,10 +249,10 @@ forward = Neuron.forward_propagate()
 # bcs = Neuron.MeanAbsoluteError(8)
 # print(f"|\nsigmoid: {sigmoid} \n    type: {type(sigmoid)} \nreLU: {relu}  \n    type: {type(relu)} \nleakyreLU: {leakyrelu} \n    type: {type(leakyrelu)} \ntanH: {tanh} \n    type: {type(tanh)} \nsoftmax: {softmax} \n    type: {type(softmax)} |")
 # print(f"""
-#    \n bcs: {bcs}
-#    \n mae: {mae}
-#    \n mse: {mse}
+#     \n bcs: {bcs}
+#     \n mae: {mae}
+#     \n mse: {mse}
 # """)
 
-#print(Neuron.sigmoid(Neuron.weighted_sum(net_type="rnn")))
-#e = Neuron._e_()
+# print(Neuron.sigmoid(Neuron.weighted_sum(net_type="rnn")))
+# e = Neuron._e_()
