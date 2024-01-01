@@ -3,7 +3,7 @@ import random
 import numpy as np
 from mpmath import mp
 from itertools import cycle
-mp.dps = 1000
+mp.dps = 10
 
 """
 What to do at work:
@@ -36,6 +36,7 @@ class Neuron:
         self.bias = bias
         self.weights = weights
         self.c = 299792458
+        self.NumSamples = len(self.inputs)
 
 
     def _e_(self):
@@ -214,9 +215,14 @@ class Neuron:
     def SparseCategoricalCrossEntropyLoss(self):
         pass
 
-    def HingeLoss(self):
-        pass
-
+    def HingeLoss(self, NumberOfSamples):
+        loss = 0.0
+        for i in range(NumberOfSamples):
+            y_i = self.inputs[i]
+            yHat_i = self.sigmoid(y_i)
+            loss  += np.max(1-(y_i*yHat_i))
+        return loss/NumberOfSamples
+        
     def HuberLoss(self):
         pass
 
@@ -231,14 +237,16 @@ class Neuron:
 
 if __name__ == "__main__":
     pass
-# Neuron = Neuron(inputs=[np.random.randint(0,9) for i in range(0,10)], weights=[np.random.randint(0,9) for i in range(0,10)],bias=[np.random.randint(0,9) for i in range(0,10)])
-# NWSum = Neuron.weighted_sum(net_type="ff")
+#Neuron = Neuron(inputs=[np.random.randint(0,9) for i in range(0,10)], weights=[np.random.randint(0,9) for i in range(0,10)],bias=[np.random.randint(0,9) for i in range(0,10)])
+#NWSum = Neuron.weighted_sum(net_type="ff")
 # forward = Neuron.forward_propagate()
 # sigmoid = Neuron.sigmoid(NWSum)
 # relu = Neuron.reLU(NWSum)
 # leakyrelu = Neuron.leakyReLU(NWSum)
 # tanh = Neuron.tanH(NWSum)
 # softmax = Neuron.softmax(NWSum)
+#hinge = Neuron.HingeLoss(Neuron.NumSamples)
+#print(f"hinge loss: {hinge}")
 
 # mse = Neuron.BinaryCrossEntropyLoss(8)
 # mae = Neuron.MeanSquaredError(8)
