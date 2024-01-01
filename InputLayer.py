@@ -5,7 +5,7 @@ Created on Sun Dec 31 11:10:07 2023
 @author: hadaw
 """
 
-from neuralNetwork import *
+from Neurons import *
 import random
 
 class InputLayer:
@@ -14,7 +14,8 @@ class InputLayer:
                                weights=weights,
                                bias=bias)
                         for _ in range(num_neurons)]
-
+        #self.loss = [neuron.HingeLoss(neuron.NumSamples) for neuron in self.neurons]
+        
     def forward_propagate(self, activation="sigmoid", floats=True):
         outputs = [neuron.forward_propagate(activationFunction=activation) for neuron in self.neurons]
         if floats == True:
@@ -40,4 +41,4 @@ bias = [random.uniform(-1, 1) for _ in range(num_neurons)]
 
 inputlayer = InputLayer(num_neurons=num_neurons, inputs=sample_inputs, weights=weights, bias=bias)
 outputs = inputlayer.forward_propagate()
-print(inputlayer.neurons)
+print("loss: ", inputlayer.loss)
