@@ -194,6 +194,36 @@ class Neuron:
         return best_activation
     """
     ############################################################
+        Probability functions are defined below
+    ############################################################
+    """
+    def classical_probability(self):
+        pass
+
+    def Empirical_Experimental_Probability(self):
+        pass
+
+    def Subjective_Probability(self):
+        """This one will be experimental,
+        it will also take a while to put together
+        considering i will have to make a language net
+        """
+        pass
+
+    def Conditional_Probability(self):
+        pass
+
+    def Joint_Probability(self):
+        pass
+
+    def Marginal_Probability(self):
+        pass
+
+    def Bayesian_Probability(self):
+        pass
+
+    """
+    ############################################################
         Loss functions are defined below
     ############################################################
     """
@@ -356,11 +386,68 @@ class Neuron:
         return n * (total_loss / NumberOfSamples)
 
 
-    def CategoricalCrossEntropyLoss(self):
-        pass
+    def CategoricalCrossEntropyLoss(self, true_labels, predicted_probabilities):
+        """
+        Compute the Categorical Cross-Entropy Loss.
 
-    def SparseCategoricalCrossEntropyLoss(self):
-        pass
+        Parameters:
+            - true_labels: The true labels in one-hot encoded format.
+            - predicted_probabilities: The predicted probabilities for each class.
+
+        Returns:
+            - loss: The computed cross-entropy loss.
+        """
+
+        # Add a small constant to avoid logarithm of zero
+        epsilon = 1e-10
+
+        # Compute the cross-entropy loss
+        loss = -np.sum(true_labels * np.log(predicted_probabilities + epsilon))
+
+        # Normalize the loss by the number of samples
+        loss /= len(true_labels)
+
+        return loss
+
+
+    def SparseCategoricalCrossEntropyLoss(self, true_labels, predicted_probabilities):
+        """
+        Compute the Sparse Categorical Cross-Entropy Loss.
+
+        This function computes the loss between the true class labels and the predicted
+        probabilities using the Sparse Categorical Cross-Entropy Loss formula. It accounts
+        for potential division by zero by adding a small epsilon value to the logarithm.
+
+        Parameters:
+            -----------
+            true_labels : numpy.ndarray
+            The true class labels. Expected to be integers representing the correct class indices.
+
+        predicted_probabilities : numpy.ndarray
+            The raw (non-normalized) scores or logits for each class.
+
+        Returns:
+            --------
+            float
+            The computed Sparse Categorical Cross-Entropy Loss averaged over the batch.
+
+        """
+
+        # Add a small constant to avoid logarithm of zero
+        epsilon = 1e-10
+
+        # Calculate the negative log probabilities for the true labels
+        # Convert the predicted probabilities to softmax values to ensure they are probabilities
+        normalized_probabilities = self.softmax(predicted_probabilities)
+
+        # Compute the loss using the formula: -sum(true_labels * log(predicted_probabilities + epsilon))
+        loss = -np.sum(true_labels * np.log(normalized_probabilities + epsilon))
+
+        # Average the loss over the number of samples
+        loss /= len(true_labels)
+
+        return loss
+
 
     def HingeLoss(self, NumberOfSamples):
         """
@@ -535,8 +622,15 @@ class Neuron:
 
         # Step 4: Compute the average loss by dividing the total loss by the number of events
         return loss / len(TotalEvents)
+    def probability_distribution(self, x):
+        # x is supposed to be a random variable
+        pass
 
-    def KullbackLeiblerDivergence(self):
+        #_probability_distribution_()
+
+        for i in range(len(self.inputs)):
+            I = self.inputs[i]
+
         pass
 
     def ContrastiveLoss(self):
