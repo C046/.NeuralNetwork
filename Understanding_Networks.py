@@ -22,7 +22,7 @@ class Neuron:
         a "bias" in our network—it gives
         our predictions a starting point.
     """
-    def __init__(self, layer_structure=[5,10,1], inputs=[], weights=[], bias=np.random.randint(0,9), e=False):
+    def __init__(self, layer_structure=np.matrix([]),ground_truth_labels=[], bias=np.random.randint(0,9), e=False):
         if e == False:
 
             self.e = sum(layer_structure)
@@ -32,12 +32,14 @@ class Neuron:
 
         self.e = self._e_()
         self.layer_structure = layer_structure
-        self.inputs = inputs
+        self.inputs = []
         self.bias = bias
-        self.weights = weights
+        self.weights = []
         self.c = 299792458
         self.NumSamples = len(self.inputs)
-
+        self.hidden_layers= []
+        self.output_layers = []
+        self.activation = self._NeuronActivatorTest_(ground_truth_labels)
 
     def _e_(self):
         self.e = 1/mp.factorial(self.e)
@@ -74,16 +76,15 @@ class Neuron:
         output = x_i
 
         # Pass through each hidden layer
-        for layer in self.hidden_layers:
-            weighted_sum = np.dot(output, layer.weights) + layer.bias
-            output = layer.activation_function(weighted_sum)
+        for hiddenLayers in range(len(self.layer_structure)-1):
+            self.hidden_layers.append(hiddenLayers)
+            weighted_sum = np.dot(output, hiddenlayerWeights) + hiddenlayerbias
+            output = self.activation_function(weighted_sum)
 
-        # Pass through the output layer (assuming no activation or linear activation)
-        weighted_sum = np.dot(output, self.output_layer.weights) + self.output_layer.bias
-        y_hat_i = weighted_sum  # Or use a linear activation function here if needed
+        weighted_sum_yHat_i = np.dot(output, self.output_layer.weights) + self.output_layer.bias
 
-        return y_hat_i
-        # return 1
+        return weighted_sum_yHat_i
+
 
     def weighted_sum(self, net_type=("ff","rnn") ):
         if net_type == "ff":
@@ -165,48 +166,194 @@ class Neuron:
         softmax_values = [i / sum_exp_values for i in exp_values]  # Normalize to get softmax values
 
         return softmax_values
+
+    def _NeuronActivatorTest_(self, ground_truth_labels):
+        "Experimental"
+        def _predict_(activation, x):
+            return activation(x)
+
+        activations = [
+            "softmax",
+            "tanH",
+            "leakyReLU",
+            "reLU",
+            "sigmoid"
+        ]
+
+        best_activation = None
+        best_accuracy = -1
+
+        for activation in activations:
+            predictions = [_predict_(activation, x) for x in self.input_data]
+            accuracy = self.compute_accuracy(predictions, ground_truth_labels)
+
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_activation = activation
+
+        return best_activation
     """
     ############################################################
         Loss functions are defined below
     ############################################################
     """
     def MeanSquaredError(self, NumberOfSamples):
-        n = 1/NumberOfSamples
+        """
+        Compute the average Mean Squared Error (MSE) over a set of samples.
+
+        The Mean Squared Error (MSE) is a commonly used metric to measure
+        the average squared difference between the predicted and actual values.
+        It provides a measure of the model's accuracy in terms of prediction error.
+
+        Parameters
+        ----------
+        NumberOfSamples : int
+            The number of samples or data points to be evaluated.
+
+        Returns
+        -------
+        mse : float
+            The average Mean Squared Error computed over all samples.
+
+        Notes
+        -----
+        The Mean Squared Error for each sample is calculated as:
+            (y_i - yHat_i)^2
+        where y_i is the actual value and yHat_i is the predicted value
+        obtained from the model's prediction function.
+
+        Example
+        -------
+        >>> MeanSquaredError(5)
+        0.25
+        """
+
+        # Calculate the normalization factor
+        n = 1 / NumberOfSamples
+
+        # Initialize the total squared residual to zero
         residualSquared = 0.0
+
+        # Loop through each sample index
         for i in range(0, NumberOfSamples):
+
+            # Retrieve the actual value for the current sample
             y_i = self.inputs[i]
+
+            # Predict the value for the current sample using the model's prediction function
             yHat_i = self.prediction(y_i)
 
-            residualSquared+=(y_i-yHat_i)**2
+            # Compute and accumlate the squared residual for the current sample
+            residualSquared += (y_i - yHat_i) ** 2
 
-        return n*(residualSquared/NumberOfSamples)
+        # Compute the average MSE by dividing the total squared residual by the number of samples
+        return n * (residualSquared / NumberOfSamples)
 
     def MeanAbsoluteError(self, NumberOfSamples):
-        n = 1/NumberOfSamples  # Assign totalSamples to n
+        """
+        Compute the average Mean Absolute Error (MAE) over a set of samples.
+
+        The Mean Absolute Error (MAE) is a commonly used metric to measure
+        the average absolute difference between the predicted and actual values.
+        It provides a measure of the model's accuracy in terms of absolute error.
+
+        Parameters
+        ----------
+        NumberOfSamples : int
+            The number of samples or data points to be evaluated.
+
+        Returns
+        -------
+        mae : float
+            The average Mean Absolute Error computed over all samples.
+
+        Notes
+        -----
+        The Mean Absolute Error for each sample is calculated as:
+            |y_i - yHat_i|
+            where y_i is the actual value and yHat_i is the predicted value
+            obtained from the model's prediction function.
+
+        Example
+        -------
+        >>> MeanAbsoluteError(5)
+        0.25
+        """
+
+        # Calculate the normalization factor
+        n = 1 / NumberOfSamples
+
+        # Initialize the total absolute differences to zero
         absoluteDifferences = 0.0
 
+        # Loop through each sample index
         for i in range(NumberOfSamples):
-            y_i = self.inputs[i]  # actual values
-            yHat_i = self.prediction(y_i)  # Predicted value for the i-th sample
 
-            absoluteDifferences+=abs(y_i - yHat_i)
+            # Retrieve the actual value for the current sample
+            y_i = self.inputs[i]
 
-        return n*(absoluteDifferences/NumberOfSamples)
+            # Predict the value for the current sample using the model's prediction function
+            yHat_i = self.prediction(y_i)
+
+            # Compute and accumulate the absolute difference for the current sample
+            absoluteDifferences += abs(y_i - yHat_i)
+
+        # Compute the average MAE by dividing the total absolute differences by the number of samples
+        return n * (absoluteDifferences / NumberOfSamples)
+
 
     def BinaryCrossEntropyLoss(self, NumberOfSamples):
-        n = -(1/NumberOfSamples)
+        """
+        Compute the average Binary Cross-Entropy loss over a set of samples.
+
+        The Binary Cross-Entropy loss is commonly used in binary classification
+        tasks to measure the difference between the predicted probabilities and
+        the actual binary labels. It penalizes incorrect predictions more severely.
+
+        Parameters
+        ----------
+        NumberOfSamples : int
+            The number of samples or data points to be evaluated.
+
+        Returns
+        -------
+        loss : float
+            The average Binary Cross-Entropy loss computed over all samples.
+
+        Notes
+        -----
+        The Binary Cross-Entropy loss for each sample is calculated as:
+            -(y_i * log(yHat_i) + (1 - y_i) * log(1 - yHat_i))
+        where y_i is the actual binary label (0 or 1) and yHat_i is the predicted
+        probability, typically obtained from a sigmoid function.
+
+        Example
+        -------
+        >>> BinaryCrossEntropyLoss(5)
+        0.25
+        """
+
+        # Calculate the normalization factor
+        n = -(1 / NumberOfSamples)
+
+        # Initialize the total loss to zero
         total_loss = 0.0
 
+        # Loop through each sample index
         for i in range(NumberOfSamples):
+
+            # Retrieve the actual binary label for the current sample (usually 0 or 1)
             y_i = self.inputs[i]
+
+            # Predict the probability for the current sample using the sigmoid function
             yHat_i = self.sigmoid(y_i)
-            # print(f"y_i: {y_i} | yHat_i: {yHat_i} n: {n}")
 
-            loss = ((y_i*mp.log(yHat_i))+((1-y_i)*mp.log(1-yHat_i)))
+            # Compute and accumulate the Binary Cross-Entropy loss for the current sample
+            total_loss += (y_i * mp.log(yHat_i)) + ((1 - y_i) * mp.log(1 - yHat_i))
 
-            total_loss += loss
 
-        return n*(total_loss/NumberOfSamples)
+        # Compute the average loss by dividing the total loss by the number of samples
+        return n * (total_loss / NumberOfSamples)
 
 
     def CategoricalCrossEntropyLoss(self):
@@ -216,18 +363,178 @@ class Neuron:
         pass
 
     def HingeLoss(self, NumberOfSamples):
-        loss = 0.0
-        for i in range(NumberOfSamples):
-            y_i = self.inputs[i]
-            yHat_i = self.sigmoid(y_i)
-            loss  += np.max(1-(y_i*yHat_i))
-        return loss/NumberOfSamples
-        
-    def HuberLoss(self):
-        pass
+        """
+        Compute the average Hinge loss over a set of samples.
 
-    def PoissonLoss(self):
-        pass
+        The Hinge loss is commonly used in binary classification tasks
+        with support vector machines (SVMs). It measures the maximum margin
+        between the decision boundary and the samples, penalizing misclassified
+        points more severely.
+
+        Parameters
+        ----------
+        NumberOfSamples : int
+            The number of samples or data points to be evaluated.
+
+        Returns
+        -------
+        loss : float
+            The average Hinge loss computed over all samples.
+
+        Notes
+        -----
+        The Hinge loss for each sample is calculated as:
+            max(0, 1 - (y_i * yHat_i))
+            where y_i is the actual label (-1 or 1) and yHat_i is the predicted
+            score, typically obtained from a sigmoid function.
+
+        Example
+        -------
+        >>> HingeLoss(5)
+        0.25
+        """
+
+        # Initialize the loss to zero
+        loss = 0.0
+
+        # Loop through each sample index
+        for i in range(NumberOfSamples):
+
+            # Retrieve the actual label for the current sample (usually -1 or 1)
+            y_i = self.inputs[i]
+
+            # Predict the score for the current sample using the sigmoid function
+            yHat_i = self.sigmoid(y_i)
+
+            # Compute and accumulate the Hinge loss for the current sample
+            loss += np.max(0, 1 - (y_i * yHat_i))
+
+        # Compute the average loss by dividing the total loss by the number of samples
+        return loss / NumberOfSamples
+
+
+    def HuberLoss(self, NumberOfSamples, threshold=float):
+        """
+        Compute the average Huber loss over a set of samples, given a threshold.
+
+        The Huber loss combines properties of the mean squared error (MSE)
+        and the mean absolute error (MAE). It behaves like the MAE for small
+        errors and like the MSE for large errors, providing a balance between
+        robustness and sensitivity to outliers.
+
+        Parameters
+        ----------
+        NumberOfSamples : int
+            The number of samples or data points to be evaluated.
+
+        threshold : float, optional
+            The threshold value that differentiates between the quadratic
+            (MSE-like) and linear (MAE-like) parts of the loss function.
+            Default is set to float(threshold).
+
+        Returns
+        -------
+        loss : float
+            The average Huber loss computed over all samples.
+
+        Notes
+        -----
+        The Huber loss is defined as:
+            - (1/2) * (difference^2)                  if |difference| <= threshold
+            - threshold * (|difference| - (1/2) * threshold)  if |difference| > threshold
+        Where difference is the absolute difference between the actual
+        value y_i and the predicted value yHat_i for each sample.
+
+        Example
+        -------
+        >>> HuberLoss(5, threshold=1.5)
+        0.25
+        """
+
+        # Initialize the loss to zero
+        loss = 0.0
+
+        # Convert the threshold to float (in case it's passed as a different type)
+        threshold = float(threshold)
+
+        # Loop through each sample index
+        for i in range(NumberOfSamples):
+
+            # Retrieve the actual value for the current sample
+            y_i = self.inputs[i]
+
+            # Predict the value for the current sample using the provided prediction function
+            yHat_i = self.prediction(y_i)
+
+            # Calculate the absolute difference between the actual and predicted values
+            difference = abs(y_i - yHat_i)
+
+            # Determine the type of loss based on the difference and threshold
+            if difference <= threshold:
+                # MSE-like quadratic loss
+                loss += ((1/2) * (difference**2))
+            else:
+                # MAE-like linear loss
+                loss += (threshold * (difference - ((1/2) * threshold)))
+
+        # Compute the average loss by dividing the total loss by the number of samples
+        return loss / NumberOfSamples
+
+
+    def PoissonLoss(self, EventInterval, TotalEvents):
+        """
+        Calculate the average Poisson loss based on the given event interval and total events.
+
+        The Poisson loss quantifies the discrepancy between the observed number of events
+        and the predicted number of events using the Poisson distribution. A lower loss
+        indicates a better fit of the model to the data.
+
+        Parameters
+        ----------
+        EventInterval : int or float
+            The duration or interval over which events are observed.
+
+        TotalEvents : list
+            A list containing the actual counts of events observed during the specified interval.
+
+        Returns
+        -------
+        loss : float
+            The average Poisson loss computed over all observed events.
+            A lower value indicates a better fit of the model to the data.
+
+        Notes
+        -----
+        The Poisson distribution is a probability distribution that describes the number
+        of events occurring in a fixed interval of time or space. The expected number
+        of events (lambda, λ) in the Poisson distribution is the average rate at which
+        events occur. The Poisson loss is calculated as the negative log-likelihood
+        of the Poisson distribution for each observed event.
+
+        Example
+        -------
+        >>> PoissonLoss(30, [25, 28, 32, 27])
+        0.25
+        """
+
+        # Step 1: Calculate the average rate (lambda, λ) for the Poisson distribution
+        Lambda = sum(TotalEvents) / len(TotalEvents)
+
+        # Initialize the loss to zero
+        loss = 0.0
+
+        # Loop through each observed event count in TotalEvents
+        for y in TotalEvents:
+            # Step 2: Predicted value based on the Poisson distribution is the average rate
+            yHat = Lambda
+
+            # Step 3: Compute the Poisson loss for the current observed event count
+            # Using the Poisson loss formula: yHat - (y * log(yHat)) + log(y!)
+            # Where y! denotes the factorial of y
+            loss += yHat - (y * np.log(yHat)) + np.log(mp.factorial(y))
+
+        # Step 4: Compute the average loss by dividing the total loss by the number of events
+        return loss / len(TotalEvents)
 
     def KullbackLeiblerDivergence(self):
         pass
