@@ -1,11 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jan  6 10:46:46 2024
-
-@author: hadaw
-"""
-
 import numpy as np
+from scipy.stats import entropy
 
 class Normal:
     def __init__(self, layer):
@@ -45,6 +39,12 @@ class Normal:
                 for value in row:
                     yield value
 
+    def kullbackLeiblerDivergence(self, p, q):
+        return entropy(p, q)
+
+from scipy.stats import entropy
+
+
 
 matrix = np.array([[1,2,3],
                   [4,5,6],
@@ -53,4 +53,4 @@ matrix = np.array([[1,2,3],
 normal = Normal(matrix)
 classicalProbDistribution = normal._normalize_(matrix, normal.classicalProbability)
 absClassicalProbability = normal._normalize_(classicalProbDistribution, normal.absClassicalProbability)
-# i can then use the klieber thing to predict the next value with these two distributions
+kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, absClassicalProbability)
