@@ -197,8 +197,14 @@ class Neuron:
         Probability functions are defined below
     ############################################################
     """
-    def classical_probability(self):
-        pass
+    def classical_probability(num_outcomes):
+        if num_outcomes < 1:
+            raise ValueError("Number of outcomes must be at least 1.")
+    
+        probability_per_outcome = 1 / num_outcomes
+        probabilities = np.full(num_outcomes, probability_per_outcome)
+    
+        return probabilities
 
     def Empirical_Experimental_Probability(self):
         pass
@@ -222,6 +228,17 @@ class Neuron:
     def Bayesian_Probability(self):
         pass
 
+    def abs_classical_probability(num_outcomes):
+        # I created this function
+        # this is my math from my meditation
+        #colton hadaway  1/5/2024
+        probability = 1/num_outcomes
+
+        for i in range(2, num_outcomes):
+            print(i)
+            probability += i/num_outcomes
+
+        return abs(probability)/num_outcomes
     """
     ############################################################
         Loss functions are defined below
