@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jan  6 10:46:46 2024
+
+@author: hadaw
+"""
+
 import numpy as np
 from scipy.stats import entropy
 
@@ -39,10 +46,23 @@ class Normal:
                 for value in row:
                     yield value
 
-    def kullbackLeiblerDivergence(self, p, q):
-        return entropy(p, q)
+    def kullbackLeiblerDivergence(self, p, q, absEntropy=False):
+        # Ensure that both distributions have the same size
+        if len(p) != len(q):
+            raise ValueError("Distributions must have the same size for KL Divergence calculation.")
 
-from scipy.stats import entropy
+        entropy_distribution = entropy(p,q)
+
+
+        if absEntropy == True:
+            return np.sum(entropy_distribution)/entropy_distribution.size
+        else:
+            return entropy_distribution
+
+
+
+
+
 
 
 
@@ -53,4 +73,4 @@ matrix = np.array([[1,2,3],
 normal = Normal(matrix)
 classicalProbDistribution = normal._normalize_(matrix, normal.classicalProbability)
 absClassicalProbability = normal._normalize_(classicalProbDistribution, normal.absClassicalProbability)
-kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, absClassicalProbability)
+kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, absClassicalProbability,absEntropy=True)
