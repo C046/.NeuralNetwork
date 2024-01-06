@@ -200,14 +200,15 @@ class Neuron:
     def classical_probability(num_outcomes):
         if num_outcomes < 1:
             raise ValueError("Number of outcomes must be at least 1.")
-    
+
         probability_per_outcome = 1 / num_outcomes
         probabilities = np.full(num_outcomes, probability_per_outcome)
-    
+
         return probabilities
 
-    def Empirical_Experimental_Probability(self):
-        pass
+    def Empirical_Experimental_Probability(self,FavorableOutcomes, NumberOfTrials):
+        return FavorableOutcomes/NumberOfTrials
+
 
     def Subjective_Probability(self):
         """This one will be experimental,
@@ -228,17 +229,23 @@ class Neuron:
     def Bayesian_Probability(self):
         pass
 
-    def abs_classical_probability(num_outcomes):
+    def abs_classical_probability(self, num_outcomes):
         # I created this function
         # this is my math from my meditation
-        #colton hadaway  1/5/2024
-        probability = 1/num_outcomes
-
+        # colton hadaway 1/5/2024
+        probability = 1 / num_outcomes
         for i in range(2, num_outcomes):
-            print(i)
-            probability += i/num_outcomes
+            probability += i / num_outcomes
 
-        return abs(probability)/num_outcomes
+        return abs(probability) / num_outcomes
+
+    def probabilityDistribution(self, layer):
+        # Assuming each element in the matrix represents the number of outcomes
+        # Calculate probabilities for each element using vectorized operations
+        probabilities = np.vectorize(self.abs_classical_probability)(layer)
+
+        return probabilities
+
     """
     ############################################################
         Loss functions are defined below
@@ -639,6 +646,7 @@ class Neuron:
 
         # Step 4: Compute the average loss by dividing the total loss by the number of events
         return loss / len(TotalEvents)
+
     def probability_distribution(self, x):
         # x is supposed to be a random variable
         pass
