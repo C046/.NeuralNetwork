@@ -90,9 +90,9 @@ class Normal:
             point2 = next(data_cycle)
 
             if label == 1:
-                loss += 0.5*(compute_distance(point1, point2)**2)
+                loss += n*(compute_distance(point1, point2)**2)
             else:
-                loss += 0.5*(max(0, (margin-compute_distance(point1, point2)))**2)
+                loss += n*(max(0, (margin-compute_distance(point1, point2)))**2)
 
         # We use datapoints because its the distance across space-time,
         # otherwise it could be the distance across point to point.
@@ -651,66 +651,4 @@ classicalProbDistribution = normal._normalize_(matrix, normal.classicalProbabili
 ExperimentDistribution = normal._normalize_(matrixTwo, normal.classicalProbability)
 P_A = ExperimentDistribution[0][0]
 ConditionalProbability = normal.Conditional_Probability(ExperimentDistribution, P_A)
-
-
-
-# # Compute the conditional probability
-# conditional_prob = (dist.cdf(P_B_Upper) - dist.cdf(P_B_Lower)) / (1 - dist.cdf(P_A))
-
-
-# ConditionalProbability = normal.Conditional_Probability(P_A, P_B)
-# kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, ExperimentDistribution)
-
-# Experiment with probabilities across all probabilities, when this is finished we will experiment with probabilities in training
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-""" blocked out tests """
-# loss = normal.ContrastiveLoss(labels, matrix)
-# normal.loss_prediction(value, labels, matrix)
-
-
-# normalTwo = Normal(matrixTwo)
-
-# absClassicalProbability = normal._normalize_(classicalProbDistribution, normal.averageClassicalProbability)
-# experimentProbDist = normalTwo._normalize_(ExperimentDistribution, normal.averageClassicalProbability)
-
-# experimentDivergence = normal.kullbackLeiblerDivergence(ExperimentDistribution, experimentProbDist)
-
-# comparison = normal.quantitativeComparison(kullbackLeiblerDivergence, experimentDivergence)
-# i can then use the klieber thing to predict the next value with these two distributions
-
-
-# probability = np.sum(absClassicalProbability)/normal.size
-# # norm = 0.0
-
-# # vector = np.vectorize(normal.ClassicalProbability)(matrix)
-# # vec = []
-# # for value in normal.iterMatrix():
-# #     norm+= normal.ClassicalProbability(value)
-# #     vec.append(norm)
-
-# #print(abs(norm)/normal.size)
-# def experiment():
-#     avg = 0.0
-#     something= []
-#     for i in range(1,20):
-#         avg += i/10.0000000000000000
-#         something.append(avg/i)
-#     return (avg,something)
-
-# experiment()
+Contrastive = normal.ContrastiveLoss(labels, matrix)
