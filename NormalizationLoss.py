@@ -26,7 +26,7 @@ class Normal:
     ############################################################
     """
 
-
+    # Created by colton hadaway on 01/07/2024 8:33 PM
     def ContrastiveLoss(self, binaryLabels, DataPoints, margin=1.0):
         def compute_distance(point1, point2):
             """
@@ -70,12 +70,19 @@ class Normal:
 
         # We use datapoints because its the distance across space-time,
         # otherwise it could be the distance across point to point.
+        contrastive_loss = loss
         binary_performance = loss/len(binaryLabels)
         dataPoints_performance = loss/len(DataPoints)
         OverallPerformance = 0.5*(binary_performance+dataPoints_performance)
         averageOverallPerformance = 0.5*((binary_performance+dataPoints_performance)/2)
 
-        return (("binary_performance",binary_performance),("dataPoints_performance",dataPoints_performance),("OverallPerformance",OverallPerformance),("averageOverallPerformance",averageOverallPerformance))
+
+        return (("contrastive_loss", contrastive_loss),
+                ("binary_performance",binary_performance),
+                ("dataPoints_performance",dataPoints_performance),
+                ("OverallPerformance",OverallPerformance),
+                ("averageOverallPerformance",averageOverallPerformance)
+                )
 
     def MeanSquaredError(self, NumberOfSamples):
         """
