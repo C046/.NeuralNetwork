@@ -73,6 +73,7 @@ class Normal:
         contrastive_loss = loss
         binary_performance = loss/len(binaryLabels)
         dataPoints_performance = loss/len(DataPoints)
+        # essentially MSE (Mean Squared Error) of the loss's below
         OverallPerformance = 0.5*(binary_performance+dataPoints_performance)
         averageOverallPerformance = 0.5*((binary_performance+dataPoints_performance)/2)
 
