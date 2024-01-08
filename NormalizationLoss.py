@@ -26,7 +26,7 @@ class Normal:
     ############################################################
     """
 
-    # in the future for this function, calculate the average rather messing with a list.
+
     def ContrastiveLoss(self, binaryLabels, DataPoints, margin=1.0):
         def compute_distance(point1, point2):
             """
@@ -70,12 +70,12 @@ class Normal:
 
         # We use datapoints because its the distance across space-time,
         # otherwise it could be the distance across point to point.
+        binary_performance = loss/len(binaryLabels)
+        dataPoints_performance = loss/len(DataPoints)
+        OverallPerformance = 0.5*(binary_performance+dataPoints_performance)
+        averageOverallPerformance = 0.5*((binary_performance+dataPoints_performance)/2)
 
-        return loss/DataPoints.size
-
-
-
-
+        return (("binary_performance",binary_performance),("dataPoints_performance",dataPoints_performance),("OverallPerformance",OverallPerformance),("averageOverallPerformance",averageOverallPerformance))
 
     def MeanSquaredError(self, NumberOfSamples):
         """
@@ -474,7 +474,11 @@ class Normal:
         # Step 4: Compute the average loss by dividing the total loss by the number of events
         return loss / len(TotalEvents)
 
-
+    """
+    ############################################################
+            Probability functions are defined below
+    ############################################################
+    """
     def averageClassicalProbability(self, value):
         return np.sum(np.linspace(0,abs(value)))/self.size
 
@@ -482,6 +486,34 @@ class Normal:
     def classicalProbability(self, value):
         num_outcomes = self.size
         return value/num_outcomes
+
+
+    def Empirical_Experimental_Probability(self,FavorableOutcomes, NumberOfTrials):
+        return FavorableOutcomes/NumberOfTrials
+
+
+    def Subjective_Probability(self):
+        """This one will be experimental,
+        it will also take a while to put together
+        considering i will have to make a language net
+        """
+        pass
+
+
+    def Conditional_Probability(self):
+        pass
+
+
+    def Joint_Probability(self):
+        pass
+
+
+    def Marginal_Probability(self):
+        pass
+
+
+    def Bayesian_Probability(self):
+        pass
 
 
     def iterMatrix(self):
@@ -536,6 +568,16 @@ class Normal:
 
 
 
+# List of labels indicating pairs of data points
+labels = [1, 0, 1, 0]  # Example labels (1: similar, 0: dissimilar)
+
+# # Corresponding data points in the feature space
+# # Assume data_points is a list of numpy arrays representing the feature vectors
+# data_points = [np.array([1, 2, 3]), np.array([4, 5, 6]), np.array([2, 3, 4]), np.array([5, 6, 7])]
+
+# Margin value for Contrastive Loss
+margin_value = 1.0
+
 
 
 
@@ -543,23 +585,25 @@ matrix = np.array([[1,2,3],
                   [4,5,6],
                   [7,8,9]])
 
-matrixTwo = np.array([[12,22,33],
-                  [43,54,66],
-                  [7,88,9]])
+# matrixTwo = np.array([[12,22,33],
+#                   [43,54,66],
+#                   [7,88,9]])
+
 normal = Normal(matrix)
-normalTwo = Normal(matrixTwo)
+normal.ContrastiveLoss(labels, matrix)
+# normalTwo = Normal(matrixTwo)
 
-classicalProbDistribution = normal._normalize_(matrix, normal.classicalProbability)
-ExperimentDistribution = normalTwo._normalize_(matrixTwo, normal.classicalProbability)
+# classicalProbDistribution = normal._normalize_(matrix, normal.classicalProbability)
+# ExperimentDistribution = normalTwo._normalize_(matrixTwo, normal.classicalProbability)
 
-absClassicalProbability = normal._normalize_(classicalProbDistribution, normal.absClassicalProbability)
-experimentProbDist = normalTwo._normalize_(ExperimentDistribution, normal.absClassicalProbability)
+# absClassicalProbability = normal._normalize_(classicalProbDistribution, normal.averageClassicalProbability)
+# experimentProbDist = normalTwo._normalize_(ExperimentDistribution, normal.averageClassicalProbability)
 
 
-kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, absClassicalProbability)
-experimentDivergence = normal.kullbackLeiblerDivergence(ExperimentDistribution, experimentProbDist)
+# kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, absClassicalProbability)
+# experimentDivergence = normal.kullbackLeiblerDivergence(ExperimentDistribution, experimentProbDist)
 
-comparison = normal.quantitativeComparison(kullbackLeiblerDivergence, experimentDivergence)
+# comparison = normal.quantitativeComparison(kullbackLeiblerDivergence, experimentDivergence)
 # i can then use the klieber thing to predict the next value with these two distributions
 
 
