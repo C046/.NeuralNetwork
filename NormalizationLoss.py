@@ -7,6 +7,7 @@ Created on Sat Jan  6 10:46:46 2024
 
 import numpy as np
 from scipy.stats import entropy
+from scipy.stats import norm
 from mpmath import mp
 from itertools import cycle
 
@@ -28,6 +29,29 @@ class Normal:
 
     # Created by colton hadaway on 01/07/2024 8:33 PM
     def ContrastiveLoss(self, binaryLabels, DataPoints, margin=1.0):
+        """
+        Parameters
+        ----------
+        binaryLabels : TYPE
+            DESCRIPTION.
+        DataPoints : TYPE
+            DESCRIPTION.
+        margin : TYPE, optional
+            DESCRIPTION. The default is 1.0.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        Notes
+        -----
+        using Contrastive Loss in a facial recognition network can help improve accuracy by guiding
+        the learning process to create more distinct and separable embeddings for different individuals.
+        This approach aims to ensure that the network can effectively differentiate between similar
+        and dissimilar facial images, thereby enhancing its ability to accurately recognize individuals
+        based on their facial features.
+        """
         def compute_distance(point1, point2):
             """
             Compute the Euclidean distance between two points in the feature space.
@@ -54,6 +78,8 @@ class Normal:
         Returns:
             - list: Computed Contrastive Losses for each pair of data points.
         """
+        n = 1/(binaryLabels.size+1/DataPoints.size)
+
         # Create a cycle iterator for the data points
         data_cycle = cycle(DataPoints)
 
@@ -73,9 +99,8 @@ class Normal:
         contrastive_loss = loss
         binary_performance = loss/len(binaryLabels)
         dataPoints_performance = loss/len(DataPoints)
-        # essentially MSE (Mean Squared Error) of the loss's below
-        OverallPerformance = 0.5*(binary_performance+dataPoints_performance)
-        averageOverallPerformance = 0.5*((binary_performance+dataPoints_performance)/2)
+        OverallPerformance = n*(binary_performance+dataPoints_performance)
+        averageOverallPerformance = n*((binary_performance+dataPoints_performance)/2)
 
 
         return (("contrastive_loss", contrastive_loss),
@@ -84,6 +109,10 @@ class Normal:
                 ("OverallPerformance",OverallPerformance),
                 ("averageOverallPerformance",averageOverallPerformance)
                 )
+
+    def loss_prediction(self, value, binaryLabels, DataPoints):
+        return value/self.ContrastiveLoss(binaryLabels, DataPoints)[0][1]
+
 
     def MeanSquaredError(self, NumberOfSamples):
         """
@@ -496,8 +525,8 @@ class Normal:
         return value/num_outcomes
 
 
-    def Empirical_Experimental_Probability(self,FavorableOutcomes, NumberOfTrials):
-        return FavorableOutcomes/NumberOfTrials
+    def Empirical_Experimental_Probability(self, TotalTrials, FrequencyCount):
+        return FrequencyCount/TotalTrials
 
 
     def Subjective_Probability(self):
@@ -508,12 +537,29 @@ class Normal:
         pass
 
 
-    def Conditional_Probability(self):
-        pass
+    def Conditional_Probability(self, distribution, P_A):
+        def extract_bounds(data):
+            """
+            Extract the lower and upper bounds from a list, array, or matrix.
 
+            Parameters:
+                - data (list, numpy array, or matrix): The data from which to extract bounds.
 
-    def Joint_Probability(self):
-        pass
+            Returns:
+                - tuple: A tuple containing the lower and upper bounds.
+            """
+            # Flatten the data to handle matrices and lists uniformly
+            flattened_data = np.array(data).flatten()
+
+            # Compute the lower and upper bounds
+            lower_bound = np.min(flattened_data)
+            upper_bound = np.max(flattened_data)
+
+            return lower_bound, upper_bound
+        dist = norm()
+        lower_bound,upper_bound = extract_bounds(distribution)
+
+        return (dist.cdf(upper_bound) - dist.cdf(lower_bound)) / (1 - dist.cdf(P_A))
 
 
     def Marginal_Probability(self):
@@ -568,6 +614,7 @@ class Normal:
 
 
         if averageDivergence == True:
+            entropy_distribution = entropy_distribution**2
             return np.sum(entropy_distribution)/entropy_distribution.size
         else:
             return entropy_distribution
@@ -577,7 +624,7 @@ class Normal:
 
 
 # List of labels indicating pairs of data points
-labels = [1, 0, 1, 0]  # Example labels (1: similar, 0: dissimilar)
+labels = np.array([1, 0, 1, 0])  # Example labels (1: similar, 0: dissimilar)
 
 # # Corresponding data points in the feature space
 # # Assume data_points is a list of numpy arrays representing the feature vectors
@@ -588,27 +635,60 @@ margin_value = 1.0
 
 
 
+value = 9
+matrix = np.array([[5,1,1],
+                  [7,1,2],
+                  [4,3,1]])
 
-matrix = np.array([[1,2,3],
-                  [4,5,6],
-                  [7,8,9]])
 
-# matrixTwo = np.array([[12,22,33],
-#                   [43,54,66],
-#                   [7,88,9]])
+matrixTwo = np.array([[12,22,33],
+                  [43,54,66],
+                  [7,88,9]])
 
 normal = Normal(matrix)
-normal.ContrastiveLoss(labels, matrix)
-# normalTwo = Normal(matrixTwo)
+dist = norm()
+classicalProbDistribution = normal._normalize_(matrix, normal.classicalProbability)
+ExperimentDistribution = normal._normalize_(matrixTwo, normal.classicalProbability)
+P_A = ExperimentDistribution[0][0]
+ConditionalProbability = normal.Conditional_Probability(ExperimentDistribution, P_A)
 
-# classicalProbDistribution = normal._normalize_(matrix, normal.classicalProbability)
-# ExperimentDistribution = normalTwo._normalize_(matrixTwo, normal.classicalProbability)
+
+
+# # Compute the conditional probability
+# conditional_prob = (dist.cdf(P_B_Upper) - dist.cdf(P_B_Lower)) / (1 - dist.cdf(P_A))
+
+
+# ConditionalProbability = normal.Conditional_Probability(P_A, P_B)
+# kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, ExperimentDistribution)
+
+# Experiment with probabilities across all probabilities, when this is finished we will experiment with probabilities in training
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" blocked out tests """
+# loss = normal.ContrastiveLoss(labels, matrix)
+# normal.loss_prediction(value, labels, matrix)
+
+
+# normalTwo = Normal(matrixTwo)
 
 # absClassicalProbability = normal._normalize_(classicalProbDistribution, normal.averageClassicalProbability)
 # experimentProbDist = normalTwo._normalize_(ExperimentDistribution, normal.averageClassicalProbability)
 
-
-# kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, absClassicalProbability)
 # experimentDivergence = normal.kullbackLeiblerDivergence(ExperimentDistribution, experimentProbDist)
 
 # comparison = normal.quantitativeComparison(kullbackLeiblerDivergence, experimentDivergence)
@@ -625,3 +705,12 @@ normal.ContrastiveLoss(labels, matrix)
 # #     vec.append(norm)
 
 # #print(abs(norm)/normal.size)
+# def experiment():
+#     avg = 0.0
+#     something= []
+#     for i in range(1,20):
+#         avg += i/10.0000000000000000
+#         something.append(avg/i)
+#     return (avg,something)
+
+# experiment()
