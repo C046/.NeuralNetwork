@@ -537,7 +537,7 @@ class Normal:
         pass
 
 
-    def Conditional_Probability(self, distribution, P_A):
+    def Conditional_Probability(self, Previousdistribution, P_A):
         def extract_bounds(data):
             """
             Extract the lower and upper bounds from a list, array, or matrix.
@@ -557,7 +557,7 @@ class Normal:
 
             return lower_bound, upper_bound
         dist = norm()
-        lower_bound,upper_bound = extract_bounds(distribution)
+        lower_bound,upper_bound = extract_bounds(Previousdistribution)
 
         return (dist.cdf(upper_bound) - dist.cdf(lower_bound)) / (1 - dist.cdf(P_A))
 
@@ -652,3 +652,65 @@ ExperimentDistribution = normal._normalize_(matrixTwo, normal.classicalProbabili
 P_A = ExperimentDistribution[0][0]
 ConditionalProbability = normal.Conditional_Probability(ExperimentDistribution, P_A)
 Contrastive = normal.ContrastiveLoss(labels, matrix)
+
+
+# # Compute the conditional probability
+# conditional_prob = (dist.cdf(P_B_Upper) - dist.cdf(P_B_Lower)) / (1 - dist.cdf(P_A))
+
+
+# ConditionalProbability = normal.Conditional_Probability(P_A, P_B)
+# kullbackLeiblerDivergence = normal.kullbackLeiblerDivergence(classicalProbDistribution, ExperimentDistribution)
+
+# Experiment with probabilities across all probabilities, when this is finished we will experiment with probabilities in training
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" blocked out tests """
+# loss = normal.ContrastiveLoss(labels, matrix)
+# normal.loss_prediction(value, labels, matrix)
+
+
+# normalTwo = Normal(matrixTwo)
+
+# absClassicalProbability = normal._normalize_(classicalProbDistribution, normal.averageClassicalProbability)
+# experimentProbDist = normalTwo._normalize_(ExperimentDistribution, normal.averageClassicalProbability)
+
+# experimentDivergence = normal.kullbackLeiblerDivergence(ExperimentDistribution, experimentProbDist)
+
+# comparison = normal.quantitativeComparison(kullbackLeiblerDivergence, experimentDivergence)
+# i can then use the klieber thing to predict the next value with these two distributions
+
+
+# probability = np.sum(absClassicalProbability)/normal.size
+# # norm = 0.0
+
+# # vector = np.vectorize(normal.ClassicalProbability)(matrix)
+# # vec = []
+# # for value in normal.iterMatrix():
+# #     norm+= normal.ClassicalProbability(value)
+# #     vec.append(norm)
+
+# #print(abs(norm)/normal.size)
+# def experiment():
+#     avg = 0.0
+#     something= []
+#     for i in range(1,20):
+#         avg += i/10.0000000000000000
+#         something.append(avg/i)
+#     return (avg,something)
+
+# experiment()
