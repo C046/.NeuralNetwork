@@ -6,13 +6,6 @@ from itertools import cycle
 from NormalizationLoss import *
 mp.dps = 10
 
-
-"""
-What to do at work:
-    1.) Figure out why e
-        simply is always == 1
-"""
-
 class Neuron(Normal):
     """
     Bias:
