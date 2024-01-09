@@ -36,7 +36,7 @@ class Neuron(Normal):
             self.e = self._e_()
 
 
-        # Make e accomodate to the model via the model accomodate to e
+        # Make e accomodate to the model not via the model accomodate to e
         self.e = self._e_()
         # Initialize the input, hidden, and output layers based on the layer_structure matrix
         self.inputs = np.array([layer_structure[i, 0] for i in range(layer_structure.shape[0])])
