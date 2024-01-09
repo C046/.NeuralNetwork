@@ -232,7 +232,6 @@ class Neuron(Normal):
             return np.zeros(shape)  # Initialize with zeros
 
 if __name__ == "__main__":
-    layer_structure=np.matrix([5,10,1])
     Neuron = Neuron()
 #Neuron = Neuron(inputs=[np.random.randint(0,9) for i in range(0,10)], weights=[np.random.randint(0,9) for i in range(0,10)],bias=[np.random.randint(0,9) for i in range(0,10)])
 #NWSum = Neuron.weighted_sum(net_type="ff")
